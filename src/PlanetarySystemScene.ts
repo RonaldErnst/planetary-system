@@ -25,8 +25,8 @@ export default class PlanetarySystemScene extends Scene
 	{
         // TODO Create Planets
         const planetA = new AstronomicalObject(0.33, 4879, new Vector3(0.1, 0.1, 0.1))
-        const planetB = new AstronomicalObject(4.87, 12104)
-        const planetC = new AstronomicalObject(2, 12104, new Vector3(), true)
+        const planetB = new AstronomicalObject(4.87, 12104, new Vector3())
+        const planetC = new AstronomicalObject(2, 12104, new Vector3())
 
         this.system.push(planetA)
         this.system.push(planetB)
@@ -77,13 +77,10 @@ export default class PlanetarySystemScene extends Scene
                 let planetB = this.system[j]
                 let force = this.calculateGravitationalForce(planetA, planetB, this.gravityConstant)
                 totalForce.add(force)
-
-                if(planetA.debug)
-                    console.log("Added Gravitational Force", force)
             }
 
             planetA.addVelocity(totalForce)
-            planetA.update(0.01)
+            planetA.update(0.001)
         }
     }
 
