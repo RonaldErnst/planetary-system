@@ -1,164 +1,114 @@
-import * as THREE from 'three'
+import AstronomicalObject from './AstronomicalObject'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Color, DirectionalLight, DirectionalLightHelper, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three'
 
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
-
-export default class BlasterScene extends THREE.Scene
+export default class PlanetarySystemScene extends Scene
 {
-	private readonly mtlLoader = new MTLLoader()
-	private readonly objLoader = new OBJLoader()
+	private readonly camera: PerspectiveCamera
+    private readonly controls: OrbitControls
+    private readonly gravityConstant: number
 
-	private readonly camera: THREE.PerspectiveCamera
+	private directionVector = new Vector3()
 
-	private readonly keyDown = new Set<string>()
+	private system: AstronomicalObject[] = []
 
-	private blaster?: THREE.Group
-	private bulletMtl?: MTLLoader.MaterialCreator
-
-	private directionVector = new THREE.Vector3()
-
-	private bullets: Bullet[] = []
-	private targets: THREE.Group[] = []
-
-	constructor(camera: THREE.PerspectiveCamera)
+	constructor(camera: PerspectiveCamera, renderer: WebGLRenderer)
 	{
 		super()
 
 		this.camera = camera
+        this.controls = new OrbitControls(camera, renderer.domElement)
+        this.gravityConstant = 6.67 * Math.pow(10, -2)
 	}
 
 	async initialize()
 	{
-		// load a shared MTL (Material Template Library) for the targets
-		const targetMtl = await this.mtlLoader.loadAsync('assets/targetA.mtl')
-		targetMtl.preload()
+        // TODO Create Planets
+        const planetA = new AstronomicalObject(0.33, 4879, new Vector3(0.1, 0.1, 0.1))
+        const planetB = new AstronomicalObject(4.87, 12104)
+        const planetC = new AstronomicalObject(2, 12104, new Vector3(), true)
 
-		this.bulletMtl = await this.mtlLoader.loadAsync('assets/foamBulletB.mtl')
-		this.bulletMtl.preload()
+        this.system.push(planetA)
+        this.system.push(planetB)
+        this.system.push(planetC)
 
-		// create the 4 targets
-		const t1 = await this.createTarget(targetMtl)
-		t1.position.x = -1
-		t1.position.z = -3
+        planetA.position.x = 5
+        planetB.position.x = -5
+        planetC.position.z = 5
 
-		const t2 = await this.createTarget(targetMtl)
-		t2.position.x = 1
-		t2.position.z = -3
+        this.add(planetA, planetB, planetC)
 
-		const t3 = await this.createTarget(targetMtl)
-		t3.position.x = 2
-		t3.position.z = -3
-
-		const t4 = await this.createTarget(targetMtl)
-		t4.position.x = -2
-		t4.position.z = -3
-
-		this.add(t1, t2, t3, t4)
-		this.targets.push(t1, t2, t3, t4)
-
-		this.blaster = await this.createBlaster()
-		this.add(this.blaster)
-
-		this.blaster.position.z = 3
-		this.blaster.add(this.camera)
-
-		this.camera.position.z = 1
-		this.camera.position.y = 0.5
-
-		const light = new THREE.DirectionalLight(0xFFFFFF, 1)
-		light.position.set(0, 4, 2)
+		const light = new DirectionalLight(0xFFFFFF, 1)
+		light.position.set(0, 10, 1)
+        const lightHelper = new DirectionalLightHelper(light)
 
 		this.add(light)
+        this.add(lightHelper)
 
-		document.addEventListener('keydown', this.handleKeyDown)
-		document.addEventListener('keyup', this.handleKeyUp)
-	}
+        this.background = new Color('green')
 
-	private handleKeyDown = (event: KeyboardEvent) => {
-		this.keyDown.add(event.key.toLowerCase())
-	}
-
-	private handleKeyUp = (event: KeyboardEvent) => {
-		this.keyDown.delete(event.key.toLowerCase())
-
-		if (event.key === ' ')
-		{
-			this.createBullet()
-		}
+        this.camera.position.set(0, 10, 0)
+        this.controls.update()
 	}
 
 	private updateInput()
 	{
-		if (!this.blaster)
+		if (!this.system)
 		{
 			return
-		}
-
-		const shiftKey = this.keyDown.has('shift')
-
-		if (!shiftKey)
-		{
-			if (this.keyDown.has('a') || this.keyDown.has('arrowleft'))
-			{
-				this.blaster.rotateY(0.02)
-			}
-			else if (this.keyDown.has('d') || this.keyDown.has('arrowright'))
-			{
-				this.blaster.rotateY(-0.02)
-			}
 		}
 
 		const dir = this.directionVector
 
 		this.camera.getWorldDirection(dir)
 
-		const speed = 0.1
-
-		if (this.keyDown.has('w') || this.keyDown.has('arrowup'))
-		{
-			this.blaster.position.add(dir.clone().multiplyScalar(speed))
-		}
-		else if (this.keyDown.has('s') || this.keyDown.has('arrowdown'))
-		{
-			this.blaster.position.add(dir.clone().multiplyScalar(-speed))
-		}
-
-		if (shiftKey)
-		{
-			const strafeDir = dir.clone()
-			const upVector = new THREE.Vector3(0, 1, 0)
-
-			if (this.keyDown.has('a') || this.keyDown.has('arrowleft'))
-			{
-				this.blaster.position.add(
-					strafeDir.applyAxisAngle(upVector, Math.PI * 0.5)
-						.multiplyScalar(speed)
-				)
-			}
-			else if (this.keyDown.has('d') || this.keyDown.has('arrowright'))
-			{
-				this.blaster.position.add(
-					strafeDir.applyAxisAngle(upVector, Math.PI * -0.5)
-						.multiplyScalar(speed)
-				)
-			}
-		}
+        this.updatePlanetPositions()
 	}
 
-	private async createTarget(mtl: MTLLoader.MaterialCreator)
-	{
-		this.objLoader.setMaterials(mtl)
+    private updatePlanetPositions() {
+        for(let i = 0; i < this.system.length; i++) {
+            let planetA = this.system[i]
+            let totalForce = new Vector3()
 
-		const modelRoot = await this.objLoader.loadAsync('assets/targetA.obj')
+            for (let j = 0; j < this.system.length; j++) {
+                if(j == i)
+                    continue
 
-		modelRoot.rotateY(Math.PI * 0.5)
+                let planetB = this.system[j]
+                let force = this.calculateGravitationalForce(planetA, planetB, this.gravityConstant)
+                totalForce.add(force)
 
-		return modelRoot
-	}
+                if(planetA.debug)
+                    console.log("Added Gravitational Force", force)
+            }
 
+            planetA.addVelocity(totalForce)
+            planetA.update(0.01)
+        }
+    }
+
+    private calculateGravitationalForce(planetA: AstronomicalObject, planetB: AstronomicalObject, gravityConstant: number) {
+        let weightA = planetA.weight
+        let weightB = planetB.weight
+
+        let posA = planetA.position.clone()
+        let posB = planetB.position.clone()
+
+        let dir = posB.sub(posA)
+        let distance = posA.distanceToSquared(posB)
+
+        let force = 0
+
+        if(distance > 0)
+            force = gravityConstant * weightA * weightB / distance
+
+        return dir.multiplyScalar(force)
+    }
+    
 	update()
 	{
 		// update
 		this.updateInput()
+        this.controls.update()
 	}
 }
