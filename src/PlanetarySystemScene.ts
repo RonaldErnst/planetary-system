@@ -18,28 +18,33 @@ export default class PlanetarySystemScene extends Scene
 
 		this.camera = camera
         this.controls = new OrbitControls(camera, renderer.domElement)
-        this.gravityConstant = 6.67 * Math.pow(10, -2)
+        this.gravityConstant = 0.34
 	}
 
 	async initialize()
 	{
         // TODO Create Planets
-        const planetA = new AstronomicalObject(0.33, 4879, new Vector3(0.1, 0.1, 0.1))
-        const planetB = new AstronomicalObject(4.87, 12104, new Vector3())
-        const planetC = new AstronomicalObject(2, 12104, new Vector3())
+        const planetA = new AstronomicalObject(1, 1, new Vector3())
+        const planetB = new AstronomicalObject(1, 1, new Vector3())
+
+        planetA.planetName = "planetA"
+        //planetB.planetName = "planetB"
+       // const planetC = new AstronomicalObject(1, 1, new Vector3())
 
         this.system.push(planetA)
         this.system.push(planetB)
-        this.system.push(planetC)
+        //this.system.push(planetC)
 
         planetA.position.x = 5
         planetB.position.x = -5
-        planetC.position.z = 5
+        //planetC.position.z = 5
 
-        this.add(planetA, planetB, planetC)
+        this.add(planetA)
+        this.add(planetB)
+        //this.add(planetC)
 
 		const light = new DirectionalLight(0xFFFFFF, 1)
-		light.position.set(0, 10, 1)
+		light.position.set(0, 100, 0)
         const lightHelper = new DirectionalLightHelper(light)
 
 		this.add(light)
@@ -47,7 +52,7 @@ export default class PlanetarySystemScene extends Scene
 
         this.background = new Color('green')
 
-        this.camera.position.set(0, 10, 0)
+        this.camera.position.set(0, 50, 0)
         this.controls.update()
 	}
 
@@ -71,17 +76,15 @@ export default class PlanetarySystemScene extends Scene
             let totalForce = new Vector3()
 
             for (let j = 0; j < this.system.length; j++) {
-                if(j == i)
-                    continue
-
                 let planetB = this.system[j]
                 let force = this.calculateGravitationalForce(planetA, planetB, this.gravityConstant)
                 totalForce.add(force)
             }
 
-            planetA.addVelocity(totalForce)
-            planetA.update(0.001)
+            planetA.velocity = planetA.velocity.add(totalForce)
         }
+
+        this.system.forEach(planet => planet.update(0.1))
     }
 
     private calculateGravitationalForce(planetA: AstronomicalObject, planetB: AstronomicalObject, gravityConstant: number) {
@@ -92,11 +95,11 @@ export default class PlanetarySystemScene extends Scene
         let posB = planetB.position.clone()
 
         let dir = posB.sub(posA)
-        let distance = posA.distanceToSquared(posB)
+        let distance = posA.distanceTo(posB)
 
         let force = 0
 
-        if(distance > 0)
+        if(distance > 0.1 && distance < 1000)
             force = gravityConstant * weightA * weightB / distance
 
         return dir.multiplyScalar(force)
