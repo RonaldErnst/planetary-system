@@ -5,6 +5,14 @@ import {
     MeshPhongMaterial
 } from 'three'
 
+export type AstronomicalObjectType = {
+    planetName?: string;
+    weight: number;
+    radius: number;
+    initialPosition: Vector3;
+    initialVelocity: Vector3;
+}
+
 export default class AstronomicalObject extends Mesh
 {
     public planetName?: string
@@ -14,7 +22,7 @@ export default class AstronomicalObject extends Mesh
 
 	private isDead = false
 
-	constructor(weight: number, radius: number, initialVelocity = new Vector3())
+	constructor({weight, radius, initialPosition = new Vector3(), initialVelocity = new Vector3()}: AstronomicalObjectType)
 	{
         const geometry = new SphereGeometry(radius)
         const mesh = new MeshPhongMaterial({ color: "orange" })
@@ -25,7 +33,7 @@ export default class AstronomicalObject extends Mesh
         this.radius = radius
         this.velocity = initialVelocity
 
-        console.log("starting velocity:", this.velocity)
+        this.position.set(initialPosition.x, initialPosition.y, initialPosition.z)
 	}
 
 	get shouldRemove()
@@ -35,8 +43,6 @@ export default class AstronomicalObject extends Mesh
 
 	update(speed = 1)
 	{
-        if(this.planetName !== undefined)
-            console.log(this.planetName, "Current Velocity:", this.velocity)
         this.position.add(this.velocity.clone().multiplyScalar(speed))
 	}
 }
