@@ -1,12 +1,15 @@
 import AstronomicalObject from "./AstronomicalObject";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import {
-	Color,
 	DirectionalLight,
 	DirectionalLightHelper,
 	Group,
+	Material,
+	Mesh,
+	MeshBasicMaterial,
 	PerspectiveCamera,
 	Scene,
+	SphereGeometry,
 	Vector3,
 	WebGLRenderer,
 } from "three";
@@ -38,30 +41,33 @@ export default class PlanetarySystemScene extends Scene {
 	}
 
 	async initialize() {
+        const sunMat = this.initMat("sun");
+        const sunGeo = this.initGeo("sun", sunMat);
+
 		// Create Planets
 		const sun = new AstronomicalObject(SUN);
 		// const mercury = new AstronomicalObject(MERCURY)
-		const earth = new AstronomicalObject(EARTH);
-		const mars = new AstronomicalObject(MARS);
+		//const earth = new AstronomicalObject(EARTH);
+		//const mars = new AstronomicalObject(MARS);
 		// const jupiter = new AstronomicalObject(JUPITER);
 		// TODO rest
 
 		this.system.push(sun);
 		// this.system.push(mercury)
-		this.system.push(earth);
-		this.system.push(mars);
+		//this.system.push(earth);
+		//this.system.push(mars);
 		// this.system.push(jupiter)
 
 		const solarsystem = new Group();
 
-		solarsystem.add(sun);
+		solarsystem.add(sunGeo);
 		// this.add(mercury)
-		solarsystem.add(earth);
-		solarsystem.add(mars);
+		//solarsystem.add(earth);
+		//solarsystem.add(mars);
 		// this.add(jupiter);
 
-		let scale = 1 / AU;
-		solarsystem.scale.set(scale, scale, scale);
+		//let scale = 100 / Math.max(...this.system.map(o => o.position.distanceTo(sun.position)));
+		//solarsystem.scale.set(scale, scale, scale);
 
 		this.add(solarsystem);
 
@@ -80,6 +86,20 @@ export default class PlanetarySystemScene extends Scene {
 		this.camera.position.set(0, 50, 0);
 		this.controls.update();
 	}
+
+    private initMat(obj: string) {
+        switch(obj) {
+            default:
+                return new MeshBasicMaterial({ color: "orange" })
+        }
+    }
+
+    private initGeo(obj:string, mat: Material) {
+        switch(obj) {
+            default:
+                return new Mesh(new SphereGeometry(1), mat)
+        }
+    }
 
 	private updateInput() {
 		if (!this.system) {
@@ -111,7 +131,7 @@ export default class PlanetarySystemScene extends Scene {
 			planetA.addVelocity(totalForce);
 		}
 
-		this.system.forEach((planet) => planet.update(0.001));
+		this.system.forEach((planet) => planet.update(0.001)); // TODO separate internal update from mesh update
 	}
 
 	update() {

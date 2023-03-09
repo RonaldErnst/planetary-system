@@ -10,7 +10,7 @@ type AOProperties = AstronomicalObjectType & {
 
 const SUN: AOProperties = {
 	planetName: "Sun",
-	mass: 1.9 * Math.pow(10, 30),
+	mass: 1.9 * 10e30,
 	radius: 1, //696340,
 	initialPosition: new Vector3(),
 	initialVelocity: new Vector3(),
@@ -19,7 +19,7 @@ const SUN: AOProperties = {
 
 const MERCURY: AOProperties = {
 	planetName: "Mercury",
-	mass: 3.3 * Math.pow(10, 23),
+	mass: 3.3 * 10e23,
 	radius: 2439.7,
 	initialPosition: new Vector3(),
 	initialVelocity: new Vector3(),
@@ -27,7 +27,7 @@ const MERCURY: AOProperties = {
 
 const EARTH: AOProperties = {
 	planetName: "Earth",
-	mass: 5.97 * Math.pow(10, 24),
+	mass: 5.97 * 10e24,
 	radius: 6371,
 	initialPosition: new Vector3(1.0167*AU,0,0),
 	initialVelocity: new Vector3(0, 29290, 0),
@@ -43,12 +43,12 @@ const MARS: AOProperties = {
 
 const JUPITER: AOProperties = {
 	planetName: "Jupiter",
-	mass: 1.9 * Math.pow(10, 27),
+	mass: 1.9 * 10e27,
 	radius: 69911,
 	initialPosition: new Vector3(
-		7.02 * Math.pow(10, 8),
-		2.3 * Math.pow(10, 8),
-		-1.7 * Math.pow(10, 7)
+		7.02 * 10e8,
+		2.3 * 10e8,
+		-1.7 * 10e7
 	),
 	initialVelocity: new Vector3(-4.22, 1.3, 4.04),
 };

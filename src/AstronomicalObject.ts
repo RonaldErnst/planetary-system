@@ -1,4 +1,4 @@
-import { Vector3, Mesh, SphereGeometry, MeshPhongMaterial } from "three";
+import { Vector3 } from "three";
 
 export type AstronomicalObjectType = {
 	planetName?: string;
@@ -9,14 +9,15 @@ export type AstronomicalObjectType = {
     skipUpdate?: boolean;
 };
 
-export default class AstronomicalObject extends Mesh {
+export default class AstronomicalObject {
 	public planetName?: string;
 	private readonly velocity: Vector3;
+    public readonly position: Vector3;
 	public readonly mass: number;
 	public readonly radius: number;
     private readonly skipUpdate?: boolean;
 
-	private readonly prevPositions: Array<Vector3>;
+	private readonly prevPositions: Array<number[]>;
 
 	private isDead = false;
 
@@ -28,17 +29,14 @@ export default class AstronomicalObject extends Mesh {
 		planetName,
         skipUpdate,
 	}: AstronomicalObjectType) {
-		const geometry = new SphereGeometry(radius);
-		const mesh = new MeshPhongMaterial({ color: "orange" });
-
-		super(geometry, mesh);
 
 		this.planetName = planetName;
 		this.mass = mass;
 		this.radius = radius;
         this.skipUpdate = skipUpdate;
 		this.velocity = initialVelocity;
-		this.prevPositions = new Array<Vector3>();
+        this.position = initialPosition;
+		this.prevPositions = new Array();
 
 		initialPosition = initialPosition;
 		this.position.set(
@@ -59,7 +57,7 @@ export default class AstronomicalObject extends Mesh {
 	}
 
 	get shouldRemove() {
-		return this.isDead;
+		return this.isDead
 	}
 
 	setVelocity(v: Vector3) {
@@ -68,19 +66,19 @@ export default class AstronomicalObject extends Mesh {
 
 	addVelocity(v: Vector3) {
 		this.velocity.add(v);
-		console.log(this.planetName, "new Velocity", this.velocity);
+		//console.log(this.planetName, "new Velocity", this.velocity);
 	}
 
 	getPath() {
 		return this.prevPositions;
 	}
 
-	update(speed = 1) {
+	update() {
         if(this.skipUpdate)
             return
 
-		this.prevPositions.push(this.position.clone());
-		this.position.add(this.velocity.clone().multiplyScalar(speed));
-		console.log(this.planetName, "new Position", this.position);
+		this.prevPositions.push(this.position.toArray());
+		this.position.add(this.velocity);
+		//console.log(this.planetName, "new Position", this.position);
 	}
 }
