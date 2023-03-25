@@ -13,7 +13,7 @@ import {
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import AstronomicalObject from "./AstronomicalObject";
-import { calculateGravitationalForce, EARTH, GRAVITY_CONSTANT, SUN } from "./util";
+import { calculateGravitationalForce, EARTH, GRAVITY_CONSTANT, MARS, SUN } from "./util";
 
 export default class PlanetarySystemScene extends Scene {
 	private readonly camera: PerspectiveCamera;
@@ -43,19 +43,22 @@ export default class PlanetarySystemScene extends Scene {
         
         const earthMat = this.initMat("earth");
 		const earthGeo = this.initGeo("earth", earthMat);
+        
+        const marsMat = this.initMat("mars");
+		const marsGeo = this.initGeo("mars", marsMat);
 
 		// Create Planets
 		const sun = new AstronomicalObject(sunGeo, SUN);
 		// const mercury = new AstronomicalObject(MERCURY)
 		const earth = new AstronomicalObject(earthGeo, EARTH);
-		// const mars = new AstronomicalObject(MARS);
+		const mars = new AstronomicalObject(marsGeo, MARS);
 		// const jupiter = new AstronomicalObject(JUPITER);
 		// TODO rest
 
 		this.system.push(sun);
 		// this.system.push(mercury)
 		this.system.push(earth);
-		//this.system.push(mars);
+		this.system.push(mars);
 		// this.system.push(jupiter)
 
 		const solarsystem = new Group();
@@ -63,7 +66,7 @@ export default class PlanetarySystemScene extends Scene {
 		solarsystem.add(sunGeo);
 		// this.add(mercury)
 		solarsystem.add(earthGeo);
-		//solarsystem.add(mars);
+		solarsystem.add(marsGeo);
 		// this.add(jupiter);
 
 		this.add(solarsystem);
