@@ -70,9 +70,8 @@ export default class PlanetarySystemScene extends Scene {
     }
 
     private setupLight() {
-        const light = new DirectionalLight(0xffffff, 1);
-		light.intensity = 20;
-		light.position.set(0, 10, 0);
+        const light = new DirectionalLight(0xffffff, 20);
+		light.position.set(0, 0, 10);
 		const lightHelper = new DirectionalLightHelper(light);
 
 		this.add(light);
@@ -80,7 +79,7 @@ export default class PlanetarySystemScene extends Scene {
     }
 
     private setupCamera() {
-		this.camera.position.set(0, 50, 0);
+		this.camera.position.set(0, 0, 50);
 		this.controls.update();
     }
 
