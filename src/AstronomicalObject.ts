@@ -1,4 +1,5 @@
-import { Vector3 } from "three";
+import { Mesh, Vector3 } from "three";
+import { convertVector, DAYSEC } from "./util";
 
 export type AstronomicalObjectType = {
 	planetName?: string;
@@ -10,6 +11,7 @@ export type AstronomicalObjectType = {
 };
 
 export default class AstronomicalObject {
+    public readonly geo: Mesh;
 	public planetName?: string;
 	private readonly velocity: Vector3;
     public readonly position: Vector3;
@@ -21,7 +23,7 @@ export default class AstronomicalObject {
 
 	private isDead = false;
 
-	constructor({
+	constructor(geo: Mesh, {
 		mass,
 		radius,
 		initialPosition = new Vector3(),
@@ -29,6 +31,7 @@ export default class AstronomicalObject {
 		planetName,
         skipUpdate,
 	}: AstronomicalObjectType) {
+        this.geo = geo;
 
 		this.planetName = planetName;
 		this.mass = mass;
@@ -64,21 +67,31 @@ export default class AstronomicalObject {
 		this.velocity.copy(v);
 	}
 
-	addVelocity(v: Vector3) {
-		this.velocity.add(v);
-		//console.log(this.planetName, "new Velocity", this.velocity);
+	updateVelocity(v: Vector3, speed = 1) {
+        if(this.skipUpdate)
+            return
+            
+		this.velocity.add(v.clone().multiplyScalar(speed));
+        console.log(this.planetName, "New velocity", this.velocity)
 	}
 
 	getPath() {
 		return this.prevPositions;
 	}
 
-	update() {
+	update(speed = 1) {
         if(this.skipUpdate)
             return
 
-		this.prevPositions.push(this.position.toArray());
-		this.position.add(this.velocity);
-		//console.log(this.planetName, "new Position", this.position);
+        this.prevPositions.push(this.position.toArray());
+        let displacement = this.velocity.clone().multiplyScalar(DAYSEC).multiplyScalar(speed)
+		this.position.add(displacement)
+        console.log(this.planetName, "Internal position", this.position)
+
+        // Update Mesh position
+        let scaledPos = convertVector(this.position)
+        this.geo.position.copy(scaledPos)
+
+        console.log(this.planetName, "Mesh position", this.geo.position)
 	}
 }

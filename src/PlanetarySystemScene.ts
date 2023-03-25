@@ -1,5 +1,3 @@
-import AstronomicalObject from "./AstronomicalObject";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import {
 	DirectionalLight,
 	DirectionalLightHelper,
@@ -13,20 +11,14 @@ import {
 	Vector3,
 	WebGLRenderer,
 } from "three";
-import {
-	AU,
-	calculateGravitationalForce,
-	EARTH,
-	JUPITER,
-	MARS,
-	MERCURY,
-	SUN,
-} from "./util";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import AstronomicalObject from "./AstronomicalObject";
+import { calculateGravitationalForce, EARTH, GRAVITY_CONSTANT, SUN } from "./util";
 
 export default class PlanetarySystemScene extends Scene {
 	private readonly camera: PerspectiveCamera;
 	private readonly controls: OrbitControls;
-	private readonly gravityConstant: number;
+    private readonly speed = 0.1;
 
 	private directionVector = new Vector3();
 
@@ -37,24 +29,32 @@ export default class PlanetarySystemScene extends Scene {
 
 		this.camera = camera;
 		this.controls = new OrbitControls(camera, renderer.domElement);
-		this.gravityConstant = 0.34;
 	}
 
 	async initialize() {
+        this.setupSolarSystem();
+        this.setupLight();
+        this.setupCamera();
+	}
+
+    private setupSolarSystem() {
         const sunMat = this.initMat("sun");
-        const sunGeo = this.initGeo("sun", sunMat);
+		const sunGeo = this.initGeo("sun", sunMat);
+        
+        const earthMat = this.initMat("earth");
+		const earthGeo = this.initGeo("earth", earthMat);
 
 		// Create Planets
-		const sun = new AstronomicalObject(SUN);
+		const sun = new AstronomicalObject(sunGeo, SUN);
 		// const mercury = new AstronomicalObject(MERCURY)
-		//const earth = new AstronomicalObject(EARTH);
-		//const mars = new AstronomicalObject(MARS);
+		const earth = new AstronomicalObject(earthGeo, EARTH);
+		// const mars = new AstronomicalObject(MARS);
 		// const jupiter = new AstronomicalObject(JUPITER);
 		// TODO rest
 
 		this.system.push(sun);
 		// this.system.push(mercury)
-		//this.system.push(earth);
+		this.system.push(earth);
 		//this.system.push(mars);
 		// this.system.push(jupiter)
 
@@ -62,44 +62,41 @@ export default class PlanetarySystemScene extends Scene {
 
 		solarsystem.add(sunGeo);
 		// this.add(mercury)
-		//solarsystem.add(earth);
+		solarsystem.add(earthGeo);
 		//solarsystem.add(mars);
 		// this.add(jupiter);
 
-		//let scale = 100 / Math.max(...this.system.map(o => o.position.distanceTo(sun.position)));
-		//solarsystem.scale.set(scale, scale, scale);
-
 		this.add(solarsystem);
+    }
 
-		// Add light
-		const light = new DirectionalLight(0xffffff, 1);
+    private setupLight() {
+        const light = new DirectionalLight(0xffffff, 1);
 		light.intensity = 20;
-		light.position.set(0, 1, 0);
+		light.position.set(0, 10, 0);
 		const lightHelper = new DirectionalLightHelper(light);
 
 		this.add(light);
 		this.add(lightHelper);
+    }
 
-		// Change the background
-		// this.background = new Color("green");
-		// And camera
+    private setupCamera() {
 		this.camera.position.set(0, 50, 0);
 		this.controls.update();
+    }
+
+	private initMat(obj: string) {
+		switch (obj) {
+			default:
+				return new MeshBasicMaterial({ color: "orange" });
+		}
 	}
 
-    private initMat(obj: string) {
-        switch(obj) {
-            default:
-                return new MeshBasicMaterial({ color: "orange" })
-        }
-    }
-
-    private initGeo(obj:string, mat: Material) {
-        switch(obj) {
-            default:
-                return new Mesh(new SphereGeometry(1), mat)
-        }
-    }
+	private initGeo(obj: string, mat: Material) {
+		switch (obj) {
+			default:
+				return new Mesh(new SphereGeometry(1), mat);
+		}
+	}
 
 	private updateInput() {
 		if (!this.system) {
@@ -119,19 +116,24 @@ export default class PlanetarySystemScene extends Scene {
 			let totalForce = new Vector3();
 
 			for (let j = 0; j < this.system.length; j++) {
+                if(i == j)
+                    continue
+
 				let planetB = this.system[j];
 				let force = calculateGravitationalForce(
 					planetA,
 					planetB,
-					this.gravityConstant
+					GRAVITY_CONSTANT
 				);
 				totalForce.add(force);
 			}
 
-			planetA.addVelocity(totalForce);
+			planetA.updateVelocity(totalForce, this.speed);
 		}
 
-		this.system.forEach((planet) => planet.update(0.001)); // TODO separate internal update from mesh update
+		this.system.forEach((planet) => {
+            planet.update(this.speed)
+        });
 	}
 
 	update() {

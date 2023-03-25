@@ -1,8 +1,11 @@
 import { Vector3 } from "three";
-import AstronomicalObject, { AstronomicalObjectType } from "./AstronomicalObject";
+import AstronomicalObject, {
+	AstronomicalObjectType,
+} from "./AstronomicalObject";
 
-export const AU = 1.5e11
-export const DAYSEC = 24.0*60*60
+export const GRAVITY_CONSTANT = 6.67428e-11;
+export const AU = 1.5e11;
+export const DAYSEC = 24.0 * 60 * 60;
 
 type AOProperties = AstronomicalObjectType & {
 	// TODO mesh path
@@ -10,16 +13,16 @@ type AOProperties = AstronomicalObjectType & {
 
 const SUN: AOProperties = {
 	planetName: "Sun",
-	mass: 1.9 * 10e30,
+	mass: 1.9e30,
 	radius: 1, //696340,
 	initialPosition: new Vector3(),
 	initialVelocity: new Vector3(),
-    skipUpdate: true
+	skipUpdate: true,
 };
 
 const MERCURY: AOProperties = {
 	planetName: "Mercury",
-	mass: 3.3 * 10e23,
+	mass: 3.3e23,
 	radius: 2439.7,
 	initialPosition: new Vector3(),
 	initialVelocity: new Vector3(),
@@ -27,29 +30,25 @@ const MERCURY: AOProperties = {
 
 const EARTH: AOProperties = {
 	planetName: "Earth",
-	mass: 5.97 * 10e24,
-	radius: 6371,
-	initialPosition: new Vector3(1.0167*AU,0,0),
+	mass: 5.97e24,
+	radius: 1, //6371,
+	initialPosition: new Vector3(1.0167 * AU, 0, 0),
 	initialVelocity: new Vector3(0, 29290, 0),
 };
 
 const MARS: AOProperties = {
-    planetName: "Mars",
-    mass: 6.39e23,
-    radius: 1,
-    initialPosition: new Vector3(1.666*AU,0,0),
-    initialVelocity: new Vector3(0,21970,0)
-}
+	planetName: "Mars",
+	mass: 6.39e23,
+	radius: 1,
+	initialPosition: new Vector3(1.666 * AU, 0, 0),
+	initialVelocity: new Vector3(0, 21970, 0),
+};
 
 const JUPITER: AOProperties = {
 	planetName: "Jupiter",
-	mass: 1.9 * 10e27,
+	mass: 1.9e27,
 	radius: 69911,
-	initialPosition: new Vector3(
-		7.02 * 10e8,
-		2.3 * 10e8,
-		-1.7 * 10e7
-	),
+	initialPosition: new Vector3(7.02e8, 2.3e8, -1.7e7),
 	initialVelocity: new Vector3(-4.22, 1.3, 4.04),
 };
 
@@ -85,39 +84,43 @@ function convertVector(v: Vector3) {
 }
 
 function calculateGravitationalForce(
-    planetA: AstronomicalObject,
-    planetB: AstronomicalObject,
-    gravityConstant: number
+	planetA: AstronomicalObject,
+	planetB: AstronomicalObject,
+	gravityConstant: number
 ) {
-    let massA = planetA.mass;
-    let massB = planetB.mass;
+	let massA = planetA.mass;
+	let massB = planetB.mass;
 
-    let posA = planetA.position.clone();
-    let posB = planetB.position.clone();
+	let posA = planetA.position.clone();
+	let posB = planetB.position.clone();
 
-    let dir = posA.sub(posB);
-    let distance = posA.distanceTo(posB);
+	let dir = posA.clone().sub(posB);
+	let distance = posA.distanceTo(posB);
 
-    let force = 0;
+	let force = 0;
 
-    if (distance > 1 && distance < Math.pow(10, 12))
-        force = (- gravityConstant * massA * massB) / (distance * distance);
+	if (distance > 1 && distance < Math.pow(10, 12)) {
+        // No idea why this works but it does https://github.com/xhinker/orbit/blob/main/solar_orbit_3d_plt.py
+        let gravConst = -gravityConstant * massA * massB
+        let mod3_e = distance ** 3
+		force = gravConst / mod3_e;
+	}
 
-    let forceVector = dir.multiplyScalar(force)
+	let forceVector = dir.multiplyScalar(force);
 
-    // update quantities how is this calculated?  F = ma -> a = F/m
-    let velocityVector = forceVector.multiplyScalar(DAYSEC).divideScalar(massA)
-    return velocityVector.multiplyScalar(DAYSEC) // position Update Vector
+	// update quantities F = ma -> a = F/m, v = a * s
+	return forceVector.divideScalar(massA).multiplyScalar(DAYSEC);
+	// return forceVector
 }
 
 export {
 	SUN,
 	MERCURY,
 	EARTH,
-    MARS,
+	MARS,
 	JUPITER,
 	convertMass,
 	convertRadius,
 	convertVector,
-    calculateGravitationalForce
+	calculateGravitationalForce,
 };
