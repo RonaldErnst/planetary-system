@@ -5,6 +5,7 @@ import AstronomicalObject, {
 
 export const GRAVITY_CONSTANT = 6.67428e-11;
 export const DAYSEC = 24.0 * 60 * 60;
+export const MAX_ORBIT_PATH_LENGTH = 1000;
 
 type AOProperties = AstronomicalObjectType & {
 	// TODO mesh path
@@ -16,7 +17,8 @@ const SUN: AOProperties = {
 	radius: 696340,
 	initialPosition: new Vector3(),
 	initialVelocity: new Vector3(),
-	skipUpdate: true,
+    orbitalInclination: 0,
+    skipUpdate: true,
 };
 
 const MERCURY: AOProperties = {
@@ -25,6 +27,7 @@ const MERCURY: AOProperties = {
 	radius: 2439.7,
 	initialPosition: new Vector3(69.8e9, 0, 0),
 	initialVelocity: new Vector3(0, 38.86e3, 0),
+    orbitalInclination: 7.0,
 };
 
 const VENUS: AOProperties = {
@@ -33,6 +36,7 @@ const VENUS: AOProperties = {
 	radius: 6051.8, 
 	initialPosition: new Vector3(108.941e9, 0, 0),
 	initialVelocity: new Vector3(0, 34.79e3, 0),
+    orbitalInclination: 3.4,
 };
 
 const EARTH: AOProperties = {
@@ -41,6 +45,7 @@ const EARTH: AOProperties = {
 	radius: 6371,
 	initialPosition: new Vector3(152e9, 0, 0),
 	initialVelocity: new Vector3(0, 29290, 0),
+    orbitalInclination: 0,
 };
 
 const MARS: AOProperties = {
@@ -49,6 +54,7 @@ const MARS: AOProperties = {
 	radius: 3389.5,
 	initialPosition: new Vector3(249.3e9, 0, 0),
 	initialVelocity: new Vector3(0, 21970, 0),
+    orbitalInclination: 1.8,
 };
 
 const JUPITER: AOProperties = {
@@ -57,6 +63,7 @@ const JUPITER: AOProperties = {
 	radius: 69911,
 	initialPosition: new Vector3(816.363e9, 0, 0),
 	initialVelocity: new Vector3(0, 12.44e3, 0),
+    orbitalInclination: 1.3,
 };
 
 const SATURN: AOProperties = {
@@ -65,6 +72,7 @@ const SATURN: AOProperties = {
 	radius: 58232,
 	initialPosition: new Vector3(1506.527e9, 0, 0),
 	initialVelocity: new Vector3(0, 9.09e3, 0),
+    orbitalInclination: 2.5,
 }
 
 const URANUS: AOProperties = {
@@ -73,6 +81,7 @@ const URANUS: AOProperties = {
 	radius: 25362,
 	initialPosition: new Vector3(3001.390e9, 0, 0),
 	initialVelocity: new Vector3(0, 6.49e3, 0),
+    orbitalInclination: 0.8,
 }
 
 const NEPTUNE: AOProperties = {
@@ -81,16 +90,10 @@ const NEPTUNE: AOProperties = {
 	radius: 24622,
 	initialPosition: new Vector3(4558.857e9, 0, 0),
 	initialVelocity: new Vector3(0, 5.37e3, 0),
+    orbitalInclination: 1.8,
 }
 
 const PLANETS = [SUN, MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE];
-
-/*
-X = 7.023783148791234E+08 Y = 2.306040767522314E+08 Z =-1.667083210917461E+07
- VX=-4.222918038302398E+00 VY= 1.302744699751427E+01 VZ= 4.042291220205030E-02
-*/
-
-// TODO rest of the planets
 
 function convertRadius(radius: number) {
 	let maxRadius = Math.max(...PLANETS.filter(p => p.planetName != "Sun").map((p) => p.radius));
@@ -102,7 +105,7 @@ function convertVector(v: Vector3) {
 	let maxDistance = Math.max(
 		...PLANETS.map((p) => SUN.initialPosition.distanceTo(p.initialPosition))
 	);
-	let scale = 1000 / maxDistance;
+	let scale = 750 / maxDistance;
 	return v.clone().multiplyScalar(scale);
 }
 

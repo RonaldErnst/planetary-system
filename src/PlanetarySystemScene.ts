@@ -2,6 +2,7 @@ import {
 	DirectionalLight,
 	DirectionalLightHelper,
 	Group,
+	LineBasicMaterial,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
@@ -22,13 +23,17 @@ export default class PlanetarySystemScene extends Scene {
 
 	private directionVector = new Vector3();
 
-	private system: AstronomicalObject[] = [];
+    private readonly lineMat: Material;
+	private systemAOs: AstronomicalObject[] = [];
+    private solarsystem: Group;
 
 	constructor(camera: PerspectiveCamera, renderer: WebGLRenderer) {
 		super();
 
 		this.camera = camera;
 		this.controls = new OrbitControls(camera, renderer.domElement);
+		this.solarsystem = new Group();
+        this.lineMat = new LineBasicMaterial( { color: 0xffffff } );
 	}
 
 	async initialize() {
@@ -38,22 +43,20 @@ export default class PlanetarySystemScene extends Scene {
 	}
 
     private setupSolarSystem() {
-		const solarsystem = new Group();
-
         PLANETS.forEach(planet => {
             let geo = this.setupAstroObject(planet)
-            solarsystem.add(geo)
+            this.solarsystem.add(geo)
         })
 
-		this.add(solarsystem);
+		this.add(this.solarsystem);
     }
 
     private setupAstroObject(planet: AstronomicalObjectType) {
         let name = planet.planetName || null;
         let mat = this.initMat(name);
         let geo = this.initGeo(name, mat, convertRadius(planet.radius));
-        const ao = new AstronomicalObject(geo, planet);
-        this.system.push(ao)
+        const ao = new AstronomicalObject(geo, this.lineMat, planet);
+        this.systemAOs.push(ao)
 
         return geo
     }
@@ -69,7 +72,7 @@ export default class PlanetarySystemScene extends Scene {
 
     private setupCamera() {
         this.camera.far = 10000
-		this.camera.position.set(0, 0, 1000);
+		this.camera.position.set(0, 0, 500);
 		this.controls.update();
     }
 
@@ -83,14 +86,14 @@ export default class PlanetarySystemScene extends Scene {
 	private initGeo(obj: string | null, mat: Material, radius: number) {
 		switch (obj) {
             case "Sun":
-                return new Mesh(new SphereGeometry(10), mat);
+                return new Mesh(new SphereGeometry(8), mat);
 			default:
 				return new Mesh(new SphereGeometry(radius), mat);
 		}
 	}
 
 	private updateInput() {
-		if (!this.system) {
+		if (!this.systemAOs) {
 			return;
 		}
 
@@ -102,15 +105,15 @@ export default class PlanetarySystemScene extends Scene {
 	}
 
 	private updatePlanetPositions() {
-		for (let i = 0; i < this.system.length; i++) {
-			let planetA = this.system[i];
+		for (let i = 0; i < this.systemAOs.length; i++) {
+			let planetA = this.systemAOs[i];
 			let totalForce = new Vector3();
 
-			for (let j = 0; j < this.system.length; j++) {
+			for (let j = 0; j < this.systemAOs.length; j++) {
                 if(i == j)
                     continue
 
-				let planetB = this.system[j];
+				let planetB = this.systemAOs[j];
 				let force = calculateGravitationalForce(
 					planetA,
 					planetB,
@@ -122,8 +125,16 @@ export default class PlanetarySystemScene extends Scene {
 			planetA.updateVelocity(totalForce, this.speed);
 		}
 
-		this.system.forEach((planet) => {
+		this.systemAOs.forEach((planet) => {
+            // Remove the path of the planet before updating
+
+            if(planet.posLine)
+                this.solarsystem.remove(planet.posLine)
+
             planet.update(this.speed)
+
+            if(planet.posLine)
+                this.solarsystem.add(planet.posLine)
         });
 	}
 
