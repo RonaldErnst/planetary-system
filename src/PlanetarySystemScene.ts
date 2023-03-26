@@ -122,13 +122,8 @@ export default class PlanetarySystemScene extends Scene {
 			planetA.updateVelocity(totalForce, this.speed);
 		}
 
-        let sun = this.system.find(p => p.planetName == "Sun")
-
 		this.system.forEach((planet) => {
             planet.update(this.speed)
-
-            /*if(sun != undefined)
-                console.log(planet.planetName, "Distance to sun", planet.position.distanceTo(sun.position))*/
         });
 	}
 
