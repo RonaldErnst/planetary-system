@@ -95,7 +95,7 @@ X = 7.023783148791234E+08 Y = 2.306040767522314E+08 Z =-1.667083210917461E+07
 function convertRadius(radius: number) {
 	let maxRadius = Math.max(...PLANETS.filter(p => p.planetName != "Sun").map((p) => p.radius));
 	let scale = 10 / maxRadius;
-	return radius * scale;
+	return Math.max(1, radius * scale);
 }
 
 function convertVector(v: Vector3) {
