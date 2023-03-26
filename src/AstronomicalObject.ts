@@ -57,6 +57,8 @@ export default class AstronomicalObject {
 			"radius",
 			this.radius
 		);
+
+        this.geo.position.copy(convertVector(this.position))
 	}
 
 	get shouldRemove() {
