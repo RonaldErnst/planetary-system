@@ -46,7 +46,7 @@ const EARTH: AOProperties = {
 const MARS: AOProperties = {
 	planetName: "Mars",
 	mass: 6.39e23,
-	radius: 1,
+	radius: 3389.5,
 	initialPosition: new Vector3(249.3e9, 0, 0),
 	initialVelocity: new Vector3(0, 21970, 0),
 };
@@ -102,7 +102,7 @@ function convertVector(v: Vector3) {
 	let maxDistance = Math.max(
 		...PLANETS.map((p) => SUN.initialPosition.distanceTo(p.initialPosition))
 	);
-	let scale = 100 / maxDistance;
+	let scale = 1000 / maxDistance;
 	return v.clone().multiplyScalar(scale);
 }
 
@@ -122,7 +122,8 @@ function calculateGravitationalForce(
 
 	let force = 0;
 
-	if (distance > 1 && distance < Math.pow(10, 12)) {
+    //console.log(planetA.planetName, "distance to", planetB.planetName, distance)
+	if (distance > 1) {
         // No idea why this works but it does https://github.com/xhinker/orbit/blob/main/solar_orbit_3d_plt.py
         let gravConst = -gravityConstant * massA * massB
         let mod3_e = distance ** 3

@@ -88,12 +88,12 @@ export default class AstronomicalObject {
         this.prevPositions.push(this.position.toArray());
         let displacement = this.velocity.clone().multiplyScalar(DAYSEC).multiplyScalar(speed)
 		this.position.add(displacement)
-        console.log(this.planetName, "Internal position", this.position)
+        //console.log(this.planetName, "Internal position", this.position)
 
         // Update Mesh position
         let scaledPos = convertVector(this.position)
         this.geo.position.copy(scaledPos)
 
-        console.log(this.planetName, "Mesh position", this.geo.position)
+        //console.log(this.planetName, "Mesh position", this.geo.position)
 	}
 }

@@ -68,7 +68,8 @@ export default class PlanetarySystemScene extends Scene {
     }
 
     private setupCamera() {
-		this.camera.position.set(0, 0, 50);
+        this.camera.far = 10000
+		this.camera.position.set(0, 0, 1000);
 		this.controls.update();
     }
 
@@ -82,7 +83,7 @@ export default class PlanetarySystemScene extends Scene {
 	private initGeo(obj: string | null, mat: Material, radius: number) {
 		switch (obj) {
             case "Sun":
-                return new Mesh(new SphereGeometry(1), mat);
+                return new Mesh(new SphereGeometry(10), mat);
 			default:
 				return new Mesh(new SphereGeometry(radius), mat);
 		}
@@ -121,8 +122,13 @@ export default class PlanetarySystemScene extends Scene {
 			planetA.updateVelocity(totalForce, this.speed);
 		}
 
+        let sun = this.system.find(p => p.planetName == "Sun")
+
 		this.system.forEach((planet) => {
             planet.update(this.speed)
+
+            /*if(sun != undefined)
+                console.log(planet.planetName, "Distance to sun", planet.position.distanceTo(sun.position))*/
         });
 	}
 
