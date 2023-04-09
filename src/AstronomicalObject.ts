@@ -63,16 +63,6 @@ export default class AstronomicalObject {
 			initialPosition.z
 		);
 
-		console.log(
-			this.planetName,
-			"initialPosition",
-			this.position,
-			"initialVelocity",
-			this.velocity,
-			"radius",
-			this.radius
-		);
-
         this.geo.position.copy(convertVector(this.position))
 	}
 

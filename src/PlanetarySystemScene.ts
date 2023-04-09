@@ -50,7 +50,7 @@ export default class PlanetarySystemScene extends Scene {
 	}
 
 	async initialize() {
-        // TODO add slider for speed
+        // TODO add slider for speed, pause and continue
         // TODO add interactivity. Clickable planets?
         // TODO change weight of planets?
 
