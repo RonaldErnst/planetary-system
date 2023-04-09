@@ -8,7 +8,6 @@ export const DAYSEC = 24.0 * 60 * 60;
 export const MAX_ORBIT_PATH_LENGTH = 1000;
 
 type AOProperties = AstronomicalObjectType & {
-	// TODO mesh path
 };
 
 const SUN: AOProperties = {
@@ -18,6 +17,7 @@ const SUN: AOProperties = {
 	initialPosition: new Vector3(),
 	initialVelocity: new Vector3(),
     orbitalInclination: 0,
+    rotationPeriod: 27 * 24 * 60 * 60,
     skipUpdate: true,
 };
 
@@ -28,6 +28,7 @@ const MERCURY: AOProperties = {
 	initialPosition: new Vector3(69.8e9, 0, 0),
 	initialVelocity: new Vector3(0, 38.86e3, 0),
     orbitalInclination: 7.0,
+    rotationPeriod: 1407.6 * 60
 };
 
 const VENUS: AOProperties = {
@@ -37,6 +38,7 @@ const VENUS: AOProperties = {
 	initialPosition: new Vector3(108.941e9, 0, 0),
 	initialVelocity: new Vector3(0, 34.79e3, 0),
     orbitalInclination: 3.4,
+    rotationPeriod: - 5832.5 * 60
 };
 
 const EARTH: AOProperties = {
@@ -46,6 +48,7 @@ const EARTH: AOProperties = {
 	initialPosition: new Vector3(152e9, 0, 0),
 	initialVelocity: new Vector3(0, 29290, 0),
     orbitalInclination: 0,
+    rotationPeriod: 23.9 * 60
 };
 
 const MARS: AOProperties = {
@@ -55,6 +58,7 @@ const MARS: AOProperties = {
 	initialPosition: new Vector3(249.3e9, 0, 0),
 	initialVelocity: new Vector3(0, 21970, 0),
     orbitalInclination: 1.8,
+    rotationPeriod: 24.6 * 60
 };
 
 const JUPITER: AOProperties = {
@@ -64,6 +68,7 @@ const JUPITER: AOProperties = {
 	initialPosition: new Vector3(816.363e9, 0, 0),
 	initialVelocity: new Vector3(0, 12.44e3, 0),
     orbitalInclination: 1.3,
+    rotationPeriod: 9.9 * 60
 };
 
 const SATURN: AOProperties = {
@@ -73,6 +78,7 @@ const SATURN: AOProperties = {
 	initialPosition: new Vector3(1506.527e9, 0, 0),
 	initialVelocity: new Vector3(0, 9.09e3, 0),
     orbitalInclination: 2.5,
+    rotationPeriod: 10.7 * 60
 }
 
 const URANUS: AOProperties = {
@@ -82,6 +88,7 @@ const URANUS: AOProperties = {
 	initialPosition: new Vector3(3001.390e9, 0, 0),
 	initialVelocity: new Vector3(0, 6.49e3, 0),
     orbitalInclination: 0.8,
+    rotationPeriod: - 17.2 * 60
 }
 
 const NEPTUNE: AOProperties = {
@@ -91,6 +98,7 @@ const NEPTUNE: AOProperties = {
 	initialPosition: new Vector3(4558.857e9, 0, 0),
 	initialVelocity: new Vector3(0, 5.37e3, 0),
     orbitalInclination: 1.8,
+    rotationPeriod: 16.1 * 60
 }
 
 const PLANETS = [SUN, MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE];

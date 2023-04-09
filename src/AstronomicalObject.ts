@@ -8,6 +8,7 @@ export type AstronomicalObjectType = {
 	initialPosition: Vector3;
 	initialVelocity: Vector3;
     orbitalInclination: number;
+    rotationPeriod: number;
     skipUpdate?: boolean;
 };
 
@@ -21,6 +22,7 @@ export default class AstronomicalObject {
 	public readonly mass: number;
 	public readonly radius: number;
     private readonly orbitalInclination: number;
+    public readonly rotationPeriod: number;
 
     private readonly skipUpdate?: boolean;
 
@@ -37,6 +39,7 @@ export default class AstronomicalObject {
         orbitalInclination,
 		planetName,
         skipUpdate,
+        rotationPeriod
 	}: AstronomicalObjectType) {
         this.geo = geo;
         this.lineMat = lineMat;
@@ -46,6 +49,7 @@ export default class AstronomicalObject {
 		this.radius = radius;
         this.skipUpdate = skipUpdate;
         this.orbitalInclination = orbitalInclination;
+        this.rotationPeriod = rotationPeriod;
 
 		this.velocity = initialVelocity.applyAxisAngle(new Vector3(0,1,0), Math.PI * this.orbitalInclination / 180);
         this.position = initialPosition.applyAxisAngle(new Vector3(0,-1,0), Math.PI * this.orbitalInclination / 180);

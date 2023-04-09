@@ -22,6 +22,7 @@ import AstronomicalObject, {
 import {
 	calculateGravitationalForce,
 	convertRadius,
+	DAYSEC,
 	GRAVITY_CONSTANT,
 	PLANETS,
 } from "./util";
@@ -49,6 +50,10 @@ export default class PlanetarySystemScene extends Scene {
 	}
 
 	async initialize() {
+        // TODO add slider for speed
+        // TODO add interactivity. Clickable planets?
+        // TODO change weight of planets?
+
 		this.setupSolarSystem();
 		this.setupLight();
 		this.setupCamera();
@@ -142,10 +147,11 @@ export default class PlanetarySystemScene extends Scene {
 
 		this.camera.getWorldDirection(dir);
 
-		this.updatePlanetPositions();
+		this.updatePlanetPosition();
+        this.updatePlanetRotation();
 	}
 
-	private updatePlanetPositions() {
+	private updatePlanetPosition() {
 		for (let i = 0; i < this.systemAOs.length; i++) {
 			let planetA = this.systemAOs[i];
 			let totalForce = new Vector3();
@@ -175,6 +181,15 @@ export default class PlanetarySystemScene extends Scene {
 			if (planet.posLine) this.solarsystem.add(planet.posLine);
 		});
 	}
+
+    private updatePlanetRotation() {
+        this.systemAOs.forEach(planet => {
+            const angVel = 2 * Math.PI / planet.rotationPeriod
+            const rotation = angVel * DAYSEC
+
+            planet.geo.rotation.z += rotation;
+        });
+    }
 
 	update() {
 		// update
