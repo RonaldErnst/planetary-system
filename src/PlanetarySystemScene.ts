@@ -78,10 +78,10 @@ export default class PlanetarySystemScene extends Scene {
 	private setupLight() {
 		const spotLight = new SpotLight(0x001199, 0.1);
 		spotLight.position.set(1000, 1000, 1000);
-		const spotLightHelper = new SpotLightHelper(spotLight);
+		// const spotLightHelper = new SpotLightHelper(spotLight);
 
 		this.add(spotLight);
-		this.add(spotLightHelper);
+		// this.add(spotLightHelper);
 
 		const sunLight = new PointLight(0xffffff, 1);
 		sunLight.position.set(0, 0, 0);
