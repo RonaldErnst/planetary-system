@@ -1,4 +1,6 @@
 import {
+    AmbientLight,
+    Color,
 	DirectionalLight,
 	DirectionalLightHelper,
 	Group,
@@ -6,9 +8,14 @@ import {
 	Material,
 	Mesh,
 	MeshBasicMaterial,
+	MeshStandardMaterial,
 	PerspectiveCamera,
+	PointLight,
 	Scene,
 	SphereGeometry,
+	SpotLight,
+	SpotLightHelper,
+	TextureLoader,
 	Vector3,
 	WebGLRenderer,
 } from "three";
@@ -24,6 +31,7 @@ export default class PlanetarySystemScene extends Scene {
 	private directionVector = new Vector3();
 
     private readonly lineMat: Material;
+    private readonly textLoader: TextureLoader;
 	private systemAOs: AstronomicalObject[] = [];
     private solarsystem: Group;
 
@@ -34,12 +42,14 @@ export default class PlanetarySystemScene extends Scene {
 		this.controls = new OrbitControls(camera, renderer.domElement);
 		this.solarsystem = new Group();
         this.lineMat = new LineBasicMaterial( { color: 0xffffff } );
+        this.textLoader = new TextureLoader();
 	}
 
 	async initialize() {
         this.setupSolarSystem();
         this.setupLight();
         this.setupCamera();
+        this.setupBackground();
 	}
 
     private setupSolarSystem() {
@@ -62,12 +72,17 @@ export default class PlanetarySystemScene extends Scene {
     }
 
     private setupLight() {
-        const light = new DirectionalLight(0xffffff, 20);
-		light.position.set(0, 0, 10);
-		const lightHelper = new DirectionalLightHelper(light);
+        const spotLight = new SpotLight(0x001199, 0.1);
+        spotLight.position.set(1000,1000,1000);
+        const spotLightHelper = new SpotLightHelper(spotLight);
 
-		this.add(light);
-		this.add(lightHelper);
+        this.add(spotLight);
+        this.add(spotLightHelper);
+
+        const sunLight = new PointLight(0xffffff, 1);
+		sunLight.position.set(0, 0, 0);
+
+		this.add(sunLight);
     }
 
     private setupCamera() {
@@ -76,10 +91,29 @@ export default class PlanetarySystemScene extends Scene {
 		this.controls.update();
     }
 
+    private setupBackground() {
+        this.background = this.textLoader.load("/assets/background.jpg");
+    }
+
 	private initMat(obj: string | null) {
 		switch (obj) {
+            case "Sun":
+                return new MeshBasicMaterial({
+                    map: this.textLoader.load(`/assets/${obj.toLowerCase()}.jpg`)
+                });
+            case "Mercury":
+            case "Venus":
+            case "Earth":
+            case "Mars":
+            case "Jupiter":
+            case "Saturn":
+            case "Uranus":
+            case "Neptune":
+                return new MeshStandardMaterial({
+                    map: this.textLoader.load(`/assets/${obj.toLowerCase()}.jpg`)
+                });
 			default:
-				return new MeshBasicMaterial({ color: "orange" });
+				return new MeshBasicMaterial({ color: new Color("red") });
 		}
 	}
 
