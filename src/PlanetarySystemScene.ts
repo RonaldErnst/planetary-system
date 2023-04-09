@@ -11,7 +11,6 @@ import {
 	Scene,
 	SphereGeometry,
 	SpotLight,
-	SpotLightHelper,
 	TextureLoader,
 	Vector3,
 	WebGLRenderer,
