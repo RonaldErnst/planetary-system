@@ -29,8 +29,10 @@ import {
 
 export default class PlanetarySystemScene extends Scene {
 	private readonly camera: PerspectiveCamera;
+    private readonly renderer: WebGLRenderer;
 	private readonly controls: OrbitControls;
-	private readonly speed = 1;
+	private speed = 1;
+    private isPaused: boolean;
 
 	private directionVector = new Vector3();
 
@@ -43,10 +45,12 @@ export default class PlanetarySystemScene extends Scene {
 		super();
 
 		this.camera = camera;
-		this.controls = new OrbitControls(camera, renderer.domElement);
+        this.renderer = renderer;
 		this.solarsystem = new Group();
 		this.lineMat = new LineBasicMaterial({ color: 0xffffff });
 		this.textLoader = new TextureLoader();
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.isPaused = false;
 	}
 
 	async initialize() {
@@ -54,10 +58,12 @@ export default class PlanetarySystemScene extends Scene {
         // TODO add interactivity. Clickable planets?
         // TODO change weight of planets?
 
-		this.setupSolarSystem();
 		this.setupLight();
 		this.setupCamera();
 		this.setupBackground();
+        this.setupRenderers();
+        this.setupControls();
+		this.setupSolarSystem();
 	}
 
 	private setupSolarSystem() {
@@ -102,6 +108,39 @@ export default class PlanetarySystemScene extends Scene {
 	private setupBackground() {
 		this.background = this.textLoader.load("/assets/background.jpg");
 	}
+
+    private setupRenderers() {
+        window.addEventListener('resize', this.resizeRenderesListener);
+        this.resizeRenderesListener();
+    }
+
+    private resizeRenderesListener() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    private setupControls() {
+        const pausePlayButton = document.getElementById("pause-play-button")!;
+        pausePlayButton.onclick = (ev) => {
+            ev.preventDefault();
+
+            this.isPaused = !this.isPaused;
+            pausePlayButton.innerText = this.isPaused ? "Play" : "Pause";
+        }
+        
+        const speedSliderValue = document.getElementById("speed-slider-value")!
+        const speedSlider = document.getElementById("speed-slider")! as HTMLInputElement
+        speedSlider.oninput = (ev) => {
+            ev.preventDefault();
+
+            speedSliderValue.innerText = speedSlider.value;
+            this.speed = speedSlider.valueAsNumber;
+        }
+
+        speedSlider.valueAsNumber = this.speed;
+        speedSliderValue.innerText = this.speed.toString();
+    }
 
 	private initMat(obj: string | null) {
 		switch (obj) {
@@ -192,8 +231,12 @@ export default class PlanetarySystemScene extends Scene {
     }
 
 	update() {
+		this.controls.update();
+        
+        if(this.isPaused)
+            return;
+
 		// update
 		this.updateInput();
-		this.controls.update();
 	}
 }
