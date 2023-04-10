@@ -129,17 +129,18 @@ export default class PlanetarySystemScene extends Scene {
             pausePlayButton.innerText = this.isPaused ? "Play" : "Pause";
         }
         
+
         const speedSliderValue = document.getElementById("speed-slider-value")!
         const speedSlider = document.getElementById("speed-slider")! as HTMLInputElement
         speedSlider.oninput = (ev) => {
             ev.preventDefault();
 
-            speedSliderValue.innerText = speedSlider.value;
             this.speed = speedSlider.valueAsNumber;
+            speedSliderValue.innerText = this.speed.toFixed(1).toString();
         }
 
         speedSlider.valueAsNumber = this.speed;
-        speedSliderValue.innerText = this.speed.toString();
+        speedSliderValue.innerText = this.speed.toFixed(1).toString();
     }
 
 	private initMat(obj: string | null) {
@@ -232,7 +233,7 @@ export default class PlanetarySystemScene extends Scene {
 
 	update() {
 		this.controls.update();
-        
+
         if(this.isPaused)
             return;
 
